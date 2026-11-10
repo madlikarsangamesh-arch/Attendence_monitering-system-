@@ -1,0 +1,3350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AttendAIoT</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #172554;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            height: 82px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 38px;
+        }
+
+        .logo h1 {
+            font-size: 26px;
+            color: #172554;
+        }
+
+        .logo h1 span {
+            color: #1683ff;
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 3px;
+        }
+
+        .faculty {
+            color: #334155;
+            font-weight: 600;
+        }
+
+        /* =========================
+           LAYOUT
+        ========================= */
+
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 82px);
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            width: 250px;
+            background: #172a4a;
+            color: white;
+            padding: 25px 10px;
+        }
+
+        .nav-item {
+            padding: 15px 18px;
+            margin-bottom: 7px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .nav-item:hover {
+            background: #233b63;
+        }
+
+        .nav-item.active {
+            background: #1683ff;
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+        }
+
+        .sidebar-bottom {
+            margin-top: 240px;
+            padding: 20px;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            flex: 1;
+            padding: 38px;
+            overflow-y: auto;
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active-page {
+            display: block;
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 8px;
+        }
+
+        .page-title-icon {
+            font-size: 38px;
+        }
+
+        .page-title h2 {
+            font-size: 31px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-left: 54px;
+            margin-bottom: 30px;
+        }
+
+        /* =========================
+           CARDS
+        ========================= */
+
+        .card {
+            background: white;
+            border: 1px solid #dce5f0;
+            border-radius: 10px;
+            padding: 26px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+        }
+
+        .session-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .session-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .session-button {
+            border: 0;
+            border-radius: 7px;
+            padding: 12px 20px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .session-button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .session-start {
+            background: #16834a;
+        }
+
+        .session-stop {
+            background: #dc2626;
+        }
+
+        .session-state {
+            color: #172554;
+            font-weight: 700;
+            font-size: 17px;
+        }
+
+        .session-countdown {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .session-notice {
+            margin-top: 18px;
+            padding: 13px 15px;
+            border-radius: 8px;
+            background: #fff7ed;
+            color: #9a3412;
+            line-height: 1.5;
+        }
+
+        .session-metrics {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(125px, 1fr));
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .metric-card {
+            background: white;
+            border: 1px solid #dce5f0;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .metric-value {
+            color: #172554;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .metric-label {
+            margin-top: 5px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .session-report {
+            margin-top: 20px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(220px, 1fr));
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .settings-grid label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 700;
+        }
+
+        .settings-grid input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            padding: 12px;
+            font-size: 15px;
+        }
+
+        .session-setting-message {
+            margin-top: 12px;
+            color: #475569;
+        }
+
+        .student-row-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .student-row-actions button {
+            border: 0;
+            border-radius: 6px;
+            padding: 7px 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .edit-student-button {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .archive-student-button {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .student-edit-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            padding: 20px;
+            overflow-y: auto;
+            background: rgba(15, 23, 42, 0.65);
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .student-edit-box {
+            width: min(460px, 100%);
+            max-height: calc(100vh - 40px);
+            margin: auto;
+            overflow-y: auto;
+            padding: 24px;
+            border-radius: 12px;
+            background: white;
+        }
+
+        .student-edit-box label {
+            display: block;
+            margin: 14px 0 6px;
+            font-weight: 700;
+        }
+
+        .student-edit-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        .student-edit-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .student-edit-actions button {
+            flex: 1;
+            padding: 11px;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        /* =========================
+           REGISTER PAGE
+        ========================= */
+
+        .registration-container {
+            display: grid;
+            grid-template-columns: 1fr 310px;
+            gap: 18px;
+        }
+
+        .form-area {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 36px;
+        }
+
+        .photo-section {
+            background: #f7faff;
+            border-radius: 9px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .photo-preview {
+            width: 200px;
+            height: 235px;
+            border-radius: 8px;
+            margin: 0 auto 18px;
+            background: #e8eef7;
+            border: 1px dashed #a8b7cc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: #64748b;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .photo-placeholder {
+            font-size: 55px;
+        }
+
+        .upload-button,
+        .camera-button {
+            width: 100%;
+            padding: 13px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .upload-button {
+            background: #1683ff;
+            color: white;
+            border: none;
+        }
+
+        .upload-button:hover {
+            background: #0873e8;
+        }
+
+        .camera-button {
+            margin-top: 10px;
+            background: white;
+            color: #172554;
+            border: 1px solid #b8c6d9;
+        }
+
+        .camera-button:hover {
+            background: #f1f5f9;
+        }
+
+        .photo-note {
+            margin-top: 15px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        #photoInput {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #172554;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #1683ff;
+            box-shadow: 0 0 0 3px rgba(22, 131, 255, 0.1);
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 7px;
+        }
+
+        .register-button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 7px;
+            background: #25a765;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .register-button:hover {
+            background: #1d9457;
+        }
+
+        .register-button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* =========================
+           RIGHT PANEL
+        ========================= */
+
+        .status-box {
+            background: #e9f9f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .status-box h3 {
+            color: #087a43;
+            margin-bottom: 10px;
+        }
+
+        .details-box {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .details-box h3 {
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            margin-bottom: 17px;
+        }
+
+        .detail-label {
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #172554;
+        }
+
+        .important-box {
+            background: #f0edff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .important-box h3 {
+            color: #4f46e5;
+            margin-bottom: 10px;
+        }
+
+        .important-box p {
+            color: #475569;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* =========================
+           PROCESS
+        ========================= */
+
+        .process {
+            margin-top: 20px;
+        }
+
+        .process h3 {
+            margin-bottom: 25px;
+        }
+
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            text-align: center;
+        }
+
+        .step-icon {
+            width: 58px;
+            height: 58px;
+            margin: auto;
+            border-radius: 50%;
+            background: #eaf2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .process-step h4 {
+            margin-top: 12px;
+            margin-bottom: 7px;
+        }
+
+        .process-step p {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           STUDENTS PAGE
+        ========================= */
+
+        .students-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .student-count {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .refresh-button {
+            padding: 11px 18px;
+            border: none;
+            border-radius: 7px;
+            background: #1683ff;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .refresh-button:hover {
+            background: #0873e8;
+        }
+
+        .student-table-wrap {
+            overflow-x: auto;
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1050px;
+        }
+
+        .student-table th,
+        .student-table td {
+            padding: 15px 14px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        .student-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 13px;
+        }
+
+        .student-table td {
+            color: #172554;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .status-good {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-bad {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-neutral {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .scan-button {
+            padding: 9px 13px;
+            border: 0;
+            border-radius: 7px;
+            background: #1683ff;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .scan-button:hover {
+            background: #0873e8;
+        }
+
+        .scan-button:disabled {
+            background: #cbd5e1;
+            color: #475569;
+            cursor: not-allowed;
+        }
+
+        .wifi-monitor-status {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .scan-message {
+            display: none;
+            margin: 0 0 18px;
+            padding: 12px 14px;
+            border-radius: 7px;
+            line-height: 1.5;
+        }
+
+        .scan-message.visible {
+            display: block;
+        }
+
+        .scan-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .scan-message.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .scan-message.info {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+        .loading-text,
+        .empty-text {
+            padding: 30px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        #message {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 7px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* =========================
+           CAMERA
+        ========================= */
+
+        .camera-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .camera-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 500px;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        #cameraVideo {
+            width: 100%;
+            border-radius: 8px;
+            background: black;
+            margin-top: 15px;
+        }
+
+        .camera-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .camera-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 7px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .capture {
+            background: #1683ff;
+            color: white;
+        }
+
+        .close-camera {
+            background: #e2e8f0;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1000px) {
+
+            .sidebar {
+                width: 190px;
+            }
+
+            .registration-container {
+                grid-template-columns: 1fr;
+            }
+
+            .form-area {
+                grid-template-columns: 1fr;
+            }
+
+            .process-steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .header {
+                padding: 0 15px;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                padding: 20px;
+            }
+
+            .process-steps {
+                grid-template-columns: 1fr;
+            }
+
+            .session-metrics,
+            .settings-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <header class="header">
+
+        <div class="logo">
+
+            <div class="logo-icon">🎓</div>
+
+            <div>
+                <h1>Attend<span>AIoT</span></h1>
+
+                <p>
+                    Smart Attendance for a Smarter Tomorrow
+                </p>
+            </div>
+
+        </div>
+
+        <div class="faculty">
+            👤 Faculty ▾ &nbsp;&nbsp; | &nbsp;&nbsp; Logout
+        </div>
+
+    </header>
+
+
+    <div class="layout">
+
+        <!-- =========================
+             SIDEBAR
+        ========================= -->
+
+        <aside class="sidebar">
+
+            <div
+                class="nav-item"
+                id="navDashboard"
+                onclick="showPage('dashboard')"
+            >
+                🏠 <span class="nav-icon"></span>Dashboard
+            </div>
+
+            <div
+                class="nav-item active"
+                id="navStudents"
+                onclick="showPage('students')"
+            >
+                👥 <span class="nav-icon"></span>Students
+            </div>
+
+            <div
+                class="nav-item"
+                id="navRegister"
+                onclick="showPage('register')"
+            >
+                👤➕ <span class="nav-icon"></span>Register Student
+            </div>
+
+            <div
+                class="nav-item"
+                id="navAttendance"
+                onclick="showPage('attendance')"
+            >
+                📅 <span class="nav-icon"></span>Attendance
+            </div>
+
+            <div
+                class="nav-item"
+                id="navReports"
+                onclick="showPage('reports')"
+            >
+                📊 <span class="nav-icon"></span>Reports
+            </div>
+
+            <div
+                class="nav-item"
+                id="navSettings"
+                onclick="showPage('settings')"
+            >
+                ⚙️ <span class="nav-icon"></span>Settings
+            </div>
+
+            <div class="sidebar-bottom">
+                AttendAIoT v1.0
+                <br><br>
+                Face + Wi-Fi Based Attendance
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             MAIN
+        ========================= -->
+
+        <main class="main">
+
+
+            <!-- =========================
+                 DASHBOARD
+            ========================= -->
+
+            <section
+                id="dashboardPage"
+                class="page-section"
+            >
+
+                <div class="page-title">
+
+                    <div class="page-title-icon">
+                        🏠
+                    </div>
+
+                    <h2>
+                        Dashboard
+                    </h2>
+
+                </div>
+
+                <p class="subtitle">
+                    AttendAIoT smart attendance overview.
+                </p>
+
+                <div class="card">
+                    <div class="session-toolbar">
+                        <div>
+                            <div id="sessionState" class="session-state">No active session</div>
+                            <div id="sessionCountdown" class="session-countdown">
+                                Configure session durations in Settings.
+                            </div>
+                        </div>
+                        <div class="session-actions">
+                            <button
+                                id="startSessionButton"
+                                class="session-button session-start"
+                                onclick="startAttendanceSession()"
+                            >
+                                ▶ START
+                            </button>
+                            <button
+                                id="resumeCameraButton"
+                                class="session-button session-start"
+                                onclick="resumeArrivalCamera()"
+                                style="display:none"
+                            >
+                                📷 Resume arrival camera
+                            </button>
+                            <button
+                                id="stopSessionButton"
+                                class="session-button session-stop"
+                                onclick="stopAttendanceSession()"
+                                disabled
+                            >
+                                ■ STOP
+                            </button>
+                        </div>
+                    </div>
+                    <div id="sessionNotice" class="session-notice" role="status">
+                        Individual device identity is unavailable. SSID visibility and face matches alone will not mark attendance.
+                    </div>
+                </div>
+
+                <div class="session-metrics" aria-live="polite">
+                    <div class="metric-card"><div id="metricRegistered" class="metric-value">0</div><div class="metric-label">Registered students</div></div>
+                    <div class="metric-card"><div id="metricPresent" class="metric-value">0</div><div class="metric-label">Verified present</div></div>
+                    <div class="metric-card"><div id="metricUndetected" class="metric-value">0</div><div class="metric-label">Not yet face-detected</div></div>
+                    <div class="metric-card"><div id="metricInside" class="metric-value">0</div><div class="metric-label">Currently verified inside</div></div>
+                    <div class="metric-card"><div id="metricEarly" class="metric-value">0</div><div class="metric-label">Left early</div></div>
+                </div>
+
+                <div class="card session-report">
+                    <h3>Live session report</h3>
+                    <div class="student-table-wrap">
+                        <table class="student-table">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Face evidence</th>
+                                    <th>Entry time</th>
+                                    <th>Last exit</th>
+                                    <th>Verified duration</th>
+                                    <th>Attendance status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sessionReportBody">
+                                <tr><td colspan="6" class="empty-text">Start a session to see live monitoring results.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 STUDENTS
+            ========================= -->
+
+            <section
+                id="studentsPage"
+                class="page-section active-page"
+            >
+
+                <div class="page-title">
+
+                    <div class="page-title-icon">
+                        👥
+                    </div>
+
+                    <h2>
+                        Registered Students
+                    </h2>
+
+                </div>
+
+                <p class="subtitle">
+                    Review student details and face enrollment. Use the dashboard session controls for automatic arrival scanning and attendance monitoring.
+                </p>
+
+
+                <div class="card">
+
+                    <div class="students-toolbar">
+
+                        <div
+                            class="student-count"
+                            id="studentCount"
+                        >
+                            Loading students...
+                        </div>
+
+                        <div>
+                            <button
+                                class="refresh-button"
+                                onclick="loadStudents()"
+                            >
+                                🔄 Refresh Students
+                            </button>
+                            <div id="studentListMessage" class="photo-note" role="status"></div>
+                            <div
+                                id="wifiMonitorStatus"
+                                class="wifi-monitor-status"
+                                aria-live="polite"
+                            >
+                                Wi-Fi monitor starting...
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div
+                        id="scanMessage"
+                        class="scan-message"
+                        role="status"
+                        aria-live="polite"
+                    ></div>
+
+                    <div class="student-table-wrap">
+
+                        <table class="student-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        #
+                                    </th>
+
+                                    <th>
+                                        Student ID
+                                    </th>
+
+                                    <th>
+                                        Name
+                                    </th>
+
+                                    <th>
+                                        Wi-Fi SSID
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>Access-point SSID visibility only</th>
+                                    <th>Face scan</th>
+                                    <th>Attendance result</th>
+                                    <th>Action</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody
+                                id="studentsTableBody"
+                            >
+
+                                <tr>
+
+                                    <td
+                                        colspan="9"
+                                        class="loading-text"
+                                    >
+                                        Loading registered students...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <p class="photo-note">
+                        This scan only checks whether a Wi-Fi network name is being broadcast nearby. It cannot detect which student device is connected. A phone hotspot appears only while it is broadcasting and is not reliable attendance evidence.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 REGISTER STUDENT
+            ========================= -->
+
+            <section
+                id="registerPage"
+                class="page-section"
+            >
+
+                <div class="page-title">
+
+                    <div class="page-title-icon">
+                        👤➕
+                    </div>
+
+                    <h2>
+                        Register New Student
+                    </h2>
+
+                </div>
+
+                <p class="subtitle">
+                    Add a new student to the system.
+                    Provide the details and upload a clear photo.
+                </p>
+
+
+                <div class="registration-container">
+
+                    <div>
+
+                        <div class="card">
+
+                            <div class="form-area">
+
+
+                                <!-- PHOTO -->
+
+                                <section class="photo-section">
+
+                                    <div class="photo-preview">
+
+                                        <div
+                                            id="photoPlaceholder"
+                                            class="photo-placeholder"
+                                        >
+                                            👤
+                                        </div>
+
+                                        <img
+                                            id="photoPreview"
+                                            alt="Student photo"
+                                        >
+
+                                    </div>
+
+
+                                    <input
+                                        type="file"
+                                        id="photoInput"
+                                        accept="image/png,image/jpeg"
+                                    >
+
+
+                                    <button
+                                        type="button"
+                                        class="upload-button"
+                                        onclick="
+                                        document
+                                        .getElementById('photoInput')
+                                        .click()
+                                        "
+                                    >
+                                        📤 Upload Photo
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        class="camera-button"
+                                        onclick="openCamera()"
+                                    >
+                                        📷 Capture from Camera
+                                    </button>
+
+
+                                    <p class="photo-note">
+
+                                        Supported formats:
+                                        JPG, PNG
+
+                                        <br>
+
+                                        Maximum size: 5MB
+
+                                    </p>
+
+                                </section>
+
+
+                                <!-- FORM -->
+
+                                <section>
+
+                                    <div class="form-group">
+
+                                        <label>
+                                            Student ID
+                                            <span class="required">*</span>
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            id="studentId"
+                                            placeholder="20241ISE0230"
+                                            oninput="updateDetails()"
+                                        >
+
+                                        <div class="help-text">
+                                            Enter the unique student ID
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="form-group">
+
+                                        <label>
+                                            Student Name
+                                            <span class="required">*</span>
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            id="studentName"
+                                            placeholder="Rahul Kumar"
+                                            oninput="updateDetails()"
+                                        >
+
+                                        <div class="help-text">
+                                            Enter the full name of the student
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="form-group">
+
+                                        <label>
+                                            Wi-Fi SSID
+                                            <span class="required">*</span>
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            id="wifiSsid"
+                                            placeholder="RahulPhone"
+                                            oninput="updateDetails()"
+                                        >
+
+                                        <div class="help-text">
+                                            Enter the registered Wi-Fi network name
+                                        </div>
+
+                                    </div>
+
+
+                                    <button
+                                        id="registerButton"
+                                        class="register-button"
+                                        onclick="registerStudent()"
+                                        disabled
+                                    >
+                                        👤➕ Register Student
+                                    </button>
+
+
+                                    <div id="message"></div>
+
+                                </section>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PROCESS -->
+
+                        <div class="card process">
+
+                            <h3>
+                                ℹ️ What happens after registration?
+                            </h3>
+
+
+                            <div class="process-steps">
+
+
+                                <div class="process-step">
+
+                                    <div class="step-icon">
+                                        🖼️
+                                    </div>
+
+                                    <h4>
+                                        1. Save Photo
+                                    </h4>
+
+                                    <p>
+                                        The uploaded photo will be used
+                                        for face training.
+                                    </p>
+
+                                </div>
+
+
+                                <div class="process-step">
+
+                                    <div class="step-icon">
+                                        👁️
+                                    </div>
+
+                                    <h4>
+                                        2. Face Detection
+                                    </h4>
+
+                                    <p>
+                                        The student's face will be detected
+                                        and processed.
+                                    </p>
+
+                                </div>
+
+
+                                <div class="process-step">
+
+                                    <div class="step-icon">
+                                        🧠
+                                    </div>
+
+                                    <h4>
+                                        3. Update Face Model
+                                    </h4>
+
+                                    <p>
+                                        New face data will be added
+                                        to the recognition model.
+                                    </p>
+
+                                </div>
+
+
+                                <div class="process-step">
+
+                                    <div class="step-icon">
+                                        🗄️
+                                    </div>
+
+                                    <h4>
+                                        4. Save to Database
+                                    </h4>
+
+                                    <p>
+                                        Student details and Wi-Fi
+                                        data will be stored.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- RIGHT PANEL -->
+
+                    <aside>
+
+                        <div class="status-box">
+
+                            <h3>
+                                ✅ Ready to Register
+                            </h3>
+
+                            <p>
+                                Fill in the student details and click
+                                "Register Student".
+                            </p>
+
+                        </div>
+
+
+                        <div class="details-box">
+
+                            <h3>
+                                Student Details
+                            </h3>
+
+
+                            <div class="detail-row">
+
+                                <div class="detail-label">
+                                    Student ID
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="displayStudentId"
+                                >
+                                    —
+                                </div>
+
+                            </div>
+
+
+                            <div class="detail-row">
+
+                                <div class="detail-label">
+                                    Name
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="displayStudentName"
+                                >
+                                    —
+                                </div>
+
+                            </div>
+
+
+                            <div class="detail-row">
+
+                                <div class="detail-label">
+                                    Wi-Fi SSID
+                                </div>
+
+                                <div
+                                    class="detail-value"
+                                    id="displayWifi"
+                                >
+                                    —
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="important-box">
+
+                            <h3>
+                                💡 Important
+                            </h3>
+
+                            <p>
+                                Make sure the photo is clear,
+                                well-lit and shows the student's
+                                face properly. This helps improve
+                                face recognition accuracy.
+                            </p>
+
+                        </div>
+
+                    </aside>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 ATTENDANCE
+            ========================= -->
+
+            <section
+                id="attendancePage"
+                class="page-section"
+            >
+
+                <div class="page-title">
+
+                    <div class="page-title-icon">
+                        📅
+                    </div>
+
+                    <h2>
+                        Attendance
+                    </h2>
+
+                </div>
+
+                <p class="subtitle">
+                    Attendance records will be connected next.
+                </p>
+
+                <div class="card">
+
+                    <h3>
+                        Attendance Records
+                    </h3>
+
+                    <p
+                        style="
+                        margin-top:12px;
+                        color:#64748b;
+                        "
+                    >
+                        This page will display attendance
+                        records from the database.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 REPORTS
+            ========================= -->
+
+            <section
+                id="reportsPage"
+                class="page-section"
+            >
+
+                <div class="page-title">
+
+                    <div class="page-title-icon">
+                        📊
+                    </div>
+
+                    <h2>
+                        Reports
+                    </h2>
+
+                </div>
+
+                <p class="subtitle">
+                    Attendance reports and statistics.
+                </p>
+
+                <div class="card">
+
+                    <h3>
+                        Reports
+                    </h3>
+
+                    <p
+                        style="
+                        margin-top:12px;
+                        color:#64748b;
+                        "
+                    >
+                        Reports will be connected after
+                        the attendance page.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 SETTINGS
+            ========================= -->
+
+            <section
+                id="settingsPage"
+                class="page-section"
+            >
+
+                <div class="page-title">
+
+                    <div class="page-title-icon">
+                        ⚙️
+                    </div>
+
+                    <h2>
+                        Settings
+                    </h2>
+
+                </div>
+
+                <p class="subtitle">
+                    AttendAIoT system settings.
+                </p>
+
+                <div class="card">
+                    <h3>Attendance policy</h3>
+                    <p class="photo-note">
+                        Arrival scanning ends at its own limit. The attendance session continues until STOP or its deadline.
+                    </p>
+                    <div class="settings-grid">
+                        <div>
+                            <label for="arrivalScanMinutes">Arrival scanning window (minutes)</label>
+                            <input id="arrivalScanMinutes" type="number" min="1" max="30" value="10">
+                        </div>
+                        <div>
+                            <label for="sessionDeadlineMinutes">Session deadline (minutes)</label>
+                            <input id="sessionDeadlineMinutes" type="number" min="45" max="360" value="60">
+                        </div>
+                        <div>
+                            <label for="disconnectGraceMinutes">Disconnect grace (minutes)</label>
+                            <input id="disconnectGraceMinutes" type="number" min="0" max="30" value="2">
+                        </div>
+                        <div>
+                            <label for="minimumVerifiedMinutes">Minimum verified attendance (minutes)</label>
+                            <input id="minimumVerifiedMinutes" type="number" min="1" max="360" value="45">
+                        </div>
+                    </div>
+                    <div class="session-actions" style="margin-top:20px">
+                        <button class="refresh-button" onclick="saveAttendanceSettings()">Save settings</button>
+                    </div>
+                    <div id="settingsMessage" class="session-setting-message" role="status"></div>
+                    <hr style="margin:24px 0;border:0;border-top:1px solid #e2e8f0">
+                    <h3>Device evidence status</h3>
+                    <p id="deviceEvidenceStatus" class="session-setting-message">
+                        Checking local adapter and authenticated provider availability...
+                    </p>
+                </div>
+
+            </section>
+
+
+        </main>
+
+    </div>
+
+
+    <!-- =========================
+         CAMERA MODAL
+    ========================= -->
+
+    <div
+        id="cameraModal"
+        class="camera-modal"
+    >
+
+        <div class="camera-box">
+
+            <h2 id="cameraTitle">
+                Capture Student Photo
+            </h2>
+
+            <p id="cameraInstruction" class="photo-note">
+                Make sure the face is centered in the camera.
+            </p>
+            <p id="cameraSessionStatus" class="session-countdown"></p>
+
+            <video
+                id="cameraVideo"
+                autoplay
+                playsinline
+            ></video>
+
+
+            <div class="camera-actions">
+
+                <button
+                    id="captureButton"
+                    class="capture"
+                    onclick="capturePhoto()"
+                >
+                    📸 Capture
+                </button>
+
+                <button
+                    id="closeCameraButton"
+                    class="close-camera"
+                    onclick="closeCamera()"
+                >
+                    Close
+                </button>
+
+                <button
+                    id="returnToDashboardButton"
+                    class="close-camera"
+                    onclick="hideSessionCamera()"
+                    style="display:none"
+                >
+                    Back to dashboard
+                </button>
+
+                <button
+                    id="cameraStopSessionButton"
+                    class="session-button session-stop"
+                    onclick="stopAttendanceSession()"
+                    style="display:none"
+                >
+                    ■ STOP session
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="studentEditModal" class="student-edit-modal" role="dialog" aria-modal="true" aria-labelledby="studentEditTitle">
+        <form class="student-edit-box" onsubmit="saveStudentEdits(event)">
+            <h2 id="studentEditTitle">Edit student details</h2>
+            <p id="studentEditId" class="photo-note"></p>
+            <label for="studentEditName">Student name</label>
+            <input id="studentEditName" type="text" maxlength="200" required>
+            <label for="studentEditWifi">Wi-Fi network name (optional)</label>
+            <input id="studentEditWifi" type="text" maxlength="200">
+            <label for="studentEditPhoto">Replace/add face photo (optional)</label>
+            <input id="studentEditPhoto" type="file" accept="image/png,image/jpeg">
+            <p class="photo-note">Network-name visibility is not proof of an individual device.</p>
+            <div class="student-edit-actions">
+                <button type="button" class="close-camera" onclick="closeStudentEditor()">Cancel</button>
+                <button type="submit" class="capture">Save changes</button>
+            </div>
+            <div id="studentEditMessage" role="status"></div>
+        </form>
+    </div>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        const API_URL = "http://127.0.0.1:8000";
+        const WIFI_POLL_INTERVAL = 10000;
+        const SESSION_POLL_INTERVAL = 1000;
+        const FRAME_INTERVAL = 1200;
+
+        let selectedPhoto = null;
+        let cameraStream = null;
+        let cameraPurpose = "registration";
+        let scanStudentId = null;
+        let studentsCache = [];
+        let wifiPolling = false;
+        let currentSession = null;
+        let editingStudentId = null;
+        let frameTimer = null;
+        let frameInFlight = false;
+        let sessionPolling = false;
+
+        const wifiPresence = new Map();
+        const scanResults = new Map();
+        const scanningStudents = new Set();
+
+
+        /* =========================
+           PAGE NAVIGATION
+        ========================= */
+
+        function showPage(page) {
+
+            const pages = [
+                "dashboardPage",
+                "studentsPage",
+                "registerPage",
+                "attendancePage",
+                "reportsPage",
+                "settingsPage"
+            ];
+
+            pages.forEach(function(pageId) {
+                const element = document.getElementById(pageId);
+                if (element) {
+                    element.classList.remove("active-page");
+                }
+            });
+
+            const selectedPage =
+                document.getElementById(page + "Page");
+            if (selectedPage) {
+                selectedPage.classList.add("active-page");
+            }
+
+            const navItems = [
+                "navDashboard",
+                "navStudents",
+                "navRegister",
+                "navAttendance",
+                "navReports",
+                "navSettings"
+            ];
+
+            navItems.forEach(function(navId) {
+                const item = document.getElementById(navId);
+                if (item) {
+                    item.classList.remove("active");
+                }
+            });
+
+            const navId =
+                "nav" +
+                page.charAt(0).toUpperCase() +
+                page.slice(1);
+            const selectedNav = document.getElementById(navId);
+            if (selectedNav) {
+                selectedNav.classList.add("active");
+            }
+
+            if (page === "students") {
+                loadStudents();
+            }
+            if (page === "settings") {
+                loadAttendanceSettings();
+                loadDeviceEvidenceStatus();
+            }
+        }
+
+
+        function escapeHtml(value) {
+
+            return String(value).replace(/[&<>"']/g, function(character) {
+                const entities = {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#39;"
+                };
+                return entities[character];
+            });
+        }
+
+
+        function statusPill(label, status) {
+
+            return `<span class="status-pill status-${status}">${escapeHtml(label)}</span>`;
+        }
+
+
+        /* =========================
+           LOAD AND DISPLAY STUDENTS
+        ========================= */
+
+        async function loadStudents() {
+
+            const tableBody = document.getElementById("studentsTableBody");
+            const count = document.getElementById("studentCount");
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="loading-text">
+                        Loading registered students...
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const response = await fetch(`${API_URL}/students`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || "Could not load students.");
+                }
+
+                studentsCache = data.students || [];
+                count.textContent =
+                    `${studentsCache.length} registered student${
+                        studentsCache.length === 1 ? "" : "s"
+                    }`;
+
+                renderStudents();
+                pollWifiStatus();
+            } catch (error) {
+                count.textContent = "Unable to load students.";
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-text">
+                            ❌ ${escapeHtml(error.message)}
+                            <br><br>
+                            Make sure the FastAPI backend is running.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+
+        function renderStudents() {
+
+            const tableBody = document.getElementById("studentsTableBody");
+
+            if (studentsCache.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-text">
+                            No students are registered yet.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.innerHTML = studentsCache.map(function(student, index) {
+                const studentId = String(student[1]);
+                const name = student[2] || "";
+                const wifiSsid = student[3] || "";
+                const faceEnrolled = student[4] === true;
+                const wifiDetected = wifiPresence.get(studentId);
+                const scan = scanResults.get(studentId);
+
+                let wifiLabel = "Checking...";
+                let wifiStatus = "pending";
+                if (!wifiSsid) {
+                    wifiLabel = "Not configured";
+                    wifiStatus = "neutral";
+                } else if (wifiDetected === true) {
+                    wifiLabel = "Network name visible only";
+                    wifiStatus = "good";
+                } else if (wifiDetected === false) {
+                    wifiLabel = "Network name not visible";
+                    wifiStatus = "bad";
+                } else if (wifiDetected === "unavailable") {
+                    wifiLabel = "Unavailable";
+                    wifiStatus = "neutral";
+                }
+
+                let faceLabel = faceEnrolled ? "Not scanned" : "Not enrolled";
+                let faceStatus = faceEnrolled ? "pending" : "neutral";
+                if (scan && scan.error) {
+                    faceLabel = "Scan failed";
+                    faceStatus = "bad";
+                } else if (scan && scan.faceRecognized) {
+                    faceLabel = "Recognized";
+                    faceStatus = "good";
+                } else if (scan && faceEnrolled) {
+                    faceLabel = "Not recognized";
+                    faceStatus = "bad";
+                }
+
+                let attendanceLabel = "Not yet verified";
+                let attendanceStatus = "pending";
+                if (!faceEnrolled) {
+                    attendanceLabel = "Not enrolled";
+                    attendanceStatus = "neutral";
+                } else if (scan && scan.error) {
+                    attendanceLabel = "Scan error";
+                    attendanceStatus = "bad";
+                } else if (scan && scan.attendanceStatus === "PRESENT") {
+                    attendanceLabel = "Present";
+                    attendanceStatus = "good";
+                } else if (scan && scan.attendanceStatus === "ALREADY_PRESENT") {
+                    attendanceLabel = "Already present";
+                    attendanceStatus = "good";
+                } else if (scan && scan.faceRecognized) {
+                    attendanceLabel = "Face seen; device unverified";
+                } else if (scan && scan.faceRecognized === false) {
+                    attendanceLabel = "Face not recognized";
+                    attendanceStatus = "bad";
+                }
+
+                const action = faceEnrolled
+                    ? `<button class="scan-button" data-scan-student="${escapeHtml(studentId)}" ${scanningStudents.has(studentId) ? "disabled" : ""}>${scanningStudents.has(studentId) ? "Checking..." : "📷 Scan now"}</button>`
+                    : `<button class="scan-button" disabled title="This student has no enrolled face profile">Face not enrolled</button>`;
+                const rowActions = `
+                    <div class="student-row-actions">
+                        <button class="edit-student-button" data-edit-student="${escapeHtml(studentId)}">Edit</button>
+                        <button class="archive-student-button" data-archive-student="${escapeHtml(studentId)}">Delete</button>
+                    </div>
+                `;
+
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${escapeHtml(studentId)}</strong></td>
+                        <td>${escapeHtml(name)}</td>
+                        <td>${escapeHtml(wifiSsid || "—")}</td>
+                        <td>${statusPill(faceEnrolled ? "Face enrolled" : "Profile needed", faceEnrolled ? "good" : "neutral")}</td>
+                        <td>${statusPill(wifiLabel, wifiStatus)}</td>
+                        <td>${statusPill(faceLabel, faceStatus)}</td>
+                        <td>${statusPill(attendanceLabel, attendanceStatus)}</td>
+                        <td>${action}${rowActions}</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function editStudent(studentId) {
+
+            const student = studentsCache.find(function(candidate) {
+                return String(candidate[1]) === studentId;
+            });
+            if (!student) {
+                return;
+            }
+            editingStudentId = studentId;
+            document.getElementById("studentEditId").textContent =
+                `Student ID: ${studentId} (IDs are fixed to preserve attendance history)`;
+            document.getElementById("studentEditName").value = student[2] || "";
+            document.getElementById("studentEditWifi").value = student[3] || "";
+            document.getElementById("studentEditPhoto").value = "";
+            document.getElementById("studentEditMessage").textContent = "";
+            document.getElementById("studentEditModal").style.display = "flex";
+        }
+
+
+        function closeStudentEditor() {
+
+            document.getElementById("studentEditModal").style.display = "none";
+            editingStudentId = null;
+        }
+
+
+        async function saveStudentEdits(event) {
+
+            event.preventDefault();
+            if (!editingStudentId) {
+                return;
+            }
+            const message = document.getElementById("studentEditMessage");
+            const submitButton = event.currentTarget.querySelector(
+                'button[type="submit"]'
+            );
+            submitButton.disabled = true;
+            message.textContent = "Saving changes...";
+
+            try {
+                const payload = {
+                    name: document.getElementById("studentEditName").value.trim(),
+                    wifi_ssid: document.getElementById("studentEditWifi").value.trim()
+                };
+                const photo = document.getElementById("studentEditPhoto").files[0];
+                if (photo) {
+                    if (photo.size > 5 * 1024 * 1024) {
+                        throw new Error("Face photo must be smaller than 5MB.");
+                    }
+                    payload.image_base64 = await new Promise(function(resolve, reject) {
+                        const reader = new FileReader();
+                        reader.onload = function() {
+                            resolve(String(reader.result || "").split(",")[1] || "");
+                        };
+                        reader.onerror = function() {
+                            reject(new Error("Could not read the selected face photo."));
+                        };
+                        reader.readAsDataURL(photo);
+                    });
+                }
+
+                const response = await fetch(
+                    `${API_URL}/students/${encodeURIComponent(editingStudentId)}`,
+                    {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    }
+                );
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || "Student details could not be updated.");
+                }
+                closeStudentEditor();
+                await loadStudents();
+                document.getElementById("studentListMessage").textContent =
+                    data.message;
+            } catch (error) {
+                message.textContent = error.message;
+                message.className = "error";
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
+
+        async function archiveStudent(studentId) {
+
+            const student = studentsCache.find(function(candidate) {
+                return String(candidate[1]) === studentId;
+            });
+            if (!student || !window.confirm(
+                `Remove ${student[2]} (${studentId}) from the active student list? Existing attendance history will be preserved.`
+            )) {
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `${API_URL}/students/${encodeURIComponent(studentId)}`,
+                    { method: "DELETE" }
+                );
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || "Student could not be removed.");
+                }
+                wifiPresence.delete(studentId);
+                scanResults.delete(studentId);
+                await loadStudents();
+                document.getElementById("studentListMessage").textContent =
+                    data.message;
+            } catch (error) {
+                window.alert(error.message);
+            }
+        }
+
+
+        /* =========================
+           CONTINUOUS WI-FI MONITOR
+        ========================= */
+
+        async function pollWifiStatus() {
+
+            if (wifiPolling || studentsCache.length === 0) {
+                return;
+            }
+
+            wifiPolling = true;
+            const monitorStatus = document.getElementById("wifiMonitorStatus");
+            if (currentSession && ["ARRIVAL_SCANNING", "MONITORING"].includes(currentSession.status)) {
+                monitorStatus.textContent =
+                    "Access-point scans are not individual device evidence; paused during attendance session.";
+                wifiPolling = false;
+                return;
+            }
+            monitorStatus.textContent = "Checking access-point SSID visibility (not student-device presence)...";
+
+            try {
+                const response = await fetch(`${API_URL}/wifi/status`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || "Wi-Fi scan failed.");
+                }
+
+                (data.students || []).forEach(function(student) {
+                    wifiPresence.set(
+                        student.student_id,
+                        student.configured ? student.network_name_visible : false
+                    );
+                });
+
+                monitorStatus.textContent =
+                    `Nearby network names checked ${data.checked_at || "just now"} · cannot identify student devices`;
+            } catch (error) {
+                studentsCache.forEach(function(student) {
+                    wifiPresence.set(String(student[1]), "unavailable");
+                });
+                monitorStatus.textContent =
+                    `Wi-Fi monitor unavailable: ${error.message}`;
+            } finally {
+                wifiPolling = false;
+                renderStudents();
+            }
+        }
+
+
+        function formatDuration(seconds) {
+
+            const total = Math.max(0, Number(seconds) || 0);
+            const hours = Math.floor(total / 3600);
+            const minutes = Math.floor((total % 3600) / 60);
+            const remainingSeconds = total % 60;
+            return hours
+                ? `${hours}h ${String(minutes).padStart(2, "0")}m`
+                : `${minutes}m ${String(remainingSeconds).padStart(2, "0")}s`;
+        }
+
+
+        function formatTimestamp(value) {
+
+            if (!value) {
+                return "—";
+            }
+            const date = new Date(value);
+            return Number.isNaN(date.getTime())
+                ? "—"
+                : date.toLocaleTimeString();
+        }
+
+
+        async function startAttendanceSession() {
+
+            const button = document.getElementById("startSessionButton");
+            button.disabled = true;
+            try {
+                const response = await fetch(`${API_URL}/sessions`, {
+                    method: "POST"
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || "Could not start the session.");
+                }
+                currentSession = data.session;
+                document.getElementById("sessionNotice").textContent =
+                    `${data.device_evidence.message} Face matches will remain unverified until an authenticated provider is connected.`;
+                updateSessionDashboard(data);
+                try {
+                    await openSessionCamera();
+                    startFrameCapture();
+                } catch (cameraError) {
+                    document.getElementById("sessionNotice").textContent =
+                        `Session started, but camera access failed: ${cameraError.message} You can stop the session here or resume camera scanning later.`;
+                }
+            } catch (error) {
+                document.getElementById("sessionNotice").textContent = error.message;
+            } finally {
+                button.disabled = Boolean(
+                    currentSession &&
+                    ["ARRIVAL_SCANNING", "MONITORING"].includes(currentSession.status)
+                );
+            }
+        }
+
+
+        async function openSessionCamera() {
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error("Camera access requires localhost and browser permission.");
+            }
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "user" },
+                audio: false
+            });
+            if (!currentSession || currentSession.status !== "ARRIVAL_SCANNING") {
+                stream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+                throw new Error("Arrival scanning is no longer active.");
+            }
+            cameraStream = stream;
+            cameraPurpose = "session";
+            document.getElementById("cameraTitle").textContent =
+                "Automatic arrival face scanning";
+            document.getElementById("cameraInstruction").textContent =
+                "The camera will retry recognition automatically during the arrival window.";
+            document.getElementById("cameraSessionStatus").textContent =
+                "No image is saved by the continuous scan.";
+            document.getElementById("captureButton").style.display = "none";
+            document.getElementById("closeCameraButton").style.display = "none";
+            document.getElementById("returnToDashboardButton").style.display = "";
+            document.getElementById("cameraStopSessionButton").style.display = "";
+            const video = document.getElementById("cameraVideo");
+            video.srcObject = cameraStream;
+            document.getElementById("cameraModal").style.display = "flex";
+            await video.play();
+        }
+
+
+        async function resumeArrivalCamera() {
+
+            if (!currentSession || currentSession.status !== "ARRIVAL_SCANNING") {
+                return;
+            }
+            try {
+                await openSessionCamera();
+                startFrameCapture();
+            } catch (error) {
+                document.getElementById("sessionNotice").textContent = error.message;
+            }
+        }
+
+
+        function startFrameCapture() {
+
+            stopFrameCapture();
+            frameTimer = window.setInterval(
+                submitArrivalFrame,
+                FRAME_INTERVAL
+            );
+            submitArrivalFrame();
+        }
+
+
+        function stopFrameCapture() {
+
+            if (frameTimer !== null) {
+                window.clearInterval(frameTimer);
+                frameTimer = null;
+            }
+            frameInFlight = false;
+        }
+
+
+        async function submitArrivalFrame() {
+
+            if (
+                frameInFlight ||
+                !currentSession ||
+                currentSession.status !== "ARRIVAL_SCANNING"
+            ) {
+                return;
+            }
+            const video = document.getElementById("cameraVideo");
+            if (!video.videoWidth || !video.videoHeight) {
+                return;
+            }
+
+            frameInFlight = true;
+            const canvas = document.createElement("canvas");
+            const scale = Math.min(1, 640 / video.videoWidth);
+            canvas.width = Math.round(video.videoWidth * scale);
+            canvas.height = Math.round(video.videoHeight * scale);
+            const context = canvas.getContext("2d");
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            try {
+                const response = await fetch(
+                    `${API_URL}/sessions/${encodeURIComponent(currentSession.session_id)}/frame`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            image_base64: canvas.toDataURL("image/jpeg", 0.65).split(",")[1]
+                        })
+                    }
+                );
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || "Face frame could not be processed.");
+                }
+                if (data.recognized_student_ids.length) {
+                    const matchedStudents = data.recognized_student_ids.map(function(studentId) {
+                        const student = studentsCache.find(
+                            function(candidate) {
+                                return String(candidate[1]) === studentId;
+                            }
+                        );
+                        return student ? student[2] : studentId;
+                    });
+                    document.getElementById("cameraSessionStatus").textContent =
+                        `Recognized: ${matchedStudents.join(", ")}. Attendance still requires authenticated device verification.`;
+                    pollCurrentSession();
+                }
+            } catch (error) {
+                document.getElementById("cameraSessionStatus").textContent =
+                    `Camera recognition error: ${error.message}`;
+            } finally {
+                frameInFlight = false;
+            }
+        }
+
+
+        function closeSessionCamera() {
+
+            stopFrameCapture();
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+                cameraStream = null;
+            }
+            const video = document.getElementById("cameraVideo");
+            video.srcObject = null;
+            document.getElementById("cameraModal").style.display = "none";
+            document.getElementById("captureButton").style.display = "";
+            document.getElementById("closeCameraButton").style.display = "";
+            document.getElementById("returnToDashboardButton").style.display = "none";
+            document.getElementById("cameraStopSessionButton").style.display = "none";
+            cameraPurpose = "registration";
+        }
+
+        function hideSessionCamera() {
+
+            closeSessionCamera();
+        }
+
+
+        async function stopAttendanceSession() {
+
+            if (!currentSession) {
+                return;
+            }
+            const buttons = [
+                document.getElementById("stopSessionButton"),
+                document.getElementById("cameraStopSessionButton")
+            ];
+            buttons.forEach(function(button) {
+                button.disabled = true;
+            });
+            try {
+                const response = await fetch(
+                    `${API_URL}/sessions/${encodeURIComponent(currentSession.session_id)}/stop`,
+                    { method: "POST" }
+                );
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || "Could not stop the session.");
+                }
+                closeSessionCamera();
+                updateSessionDashboard(data);
+            } catch (error) {
+                document.getElementById("sessionNotice").textContent = error.message;
+                buttons.forEach(function(button) {
+                    button.disabled = false;
+                });
+            } finally {
+                if (currentSession && ["ARRIVAL_SCANNING", "MONITORING"].includes(currentSession.status)) {
+                    buttons.forEach(function(button) {
+                        button.disabled = false;
+                    });
+                }
+            }
+        }
+
+
+        function updateSessionDashboard(data) {
+
+            const session = data.session;
+            currentSession = session;
+            document.getElementById("metricRegistered").textContent =
+                data.registered_students || 0;
+            document.getElementById("metricPresent").textContent =
+                data.present_students || 0;
+            document.getElementById("metricUndetected").textContent =
+                data.not_yet_detected || 0;
+            document.getElementById("metricInside").textContent =
+                data.currently_inside || 0;
+            document.getElementById("metricEarly").textContent =
+                data.left_early || 0;
+
+            const active = Boolean(
+                session &&
+                ["ARRIVAL_SCANNING", "MONITORING"].includes(session.status)
+            );
+            const state = document.getElementById("sessionState");
+            const countdown = document.getElementById("sessionCountdown");
+            document.getElementById("startSessionButton").disabled = active;
+            document.getElementById("stopSessionButton").disabled = !active;
+            document.getElementById("cameraStopSessionButton").disabled = !active;
+            document.getElementById("resumeCameraButton").style.display =
+                session &&
+                session.status === "ARRIVAL_SCANNING" &&
+                !cameraStream
+                    ? ""
+                    : "none";
+
+            if (!session) {
+                state.textContent = "No attendance session";
+                countdown.textContent = "Configure session durations in Settings.";
+                renderSessionReport([]);
+                return;
+            }
+
+            state.textContent = {
+                ARRIVAL_SCANNING: "Arrival face scanning",
+                MONITORING: "Ongoing attendance monitoring",
+                COMPLETED: "Session completed",
+                STOPPED: "Session stopped"
+            }[session.status] || session.status;
+
+            countdown.textContent = active
+                ? session.status === "ARRIVAL_SCANNING"
+                    ? `Arrival scan ends in ${formatDuration(session.arrival_seconds_remaining)} · Session deadline in ${formatDuration(session.session_seconds_remaining)}`
+                    : `Arrival scanning ended · Session deadline in ${formatDuration(session.session_seconds_remaining)}`
+                : `Started ${formatTimestamp(session.started_at)} · Ended ${formatTimestamp(session.stopped_at)}`;
+
+            if (session.status !== "ARRIVAL_SCANNING" && cameraPurpose === "session") {
+                closeSessionCamera();
+            }
+
+            const evidence = data.device_evidence || {};
+            document.getElementById("sessionNotice").textContent =
+                `${evidence.message || "Authenticated device evidence is unavailable."} ${
+                    active
+                        ? "Face matches alone are not attendance verification."
+                        : ""
+                }`;
+            renderSessionReport(data.students || []);
+        }
+
+
+        function renderSessionReport(students) {
+
+            const body = document.getElementById("sessionReportBody");
+            if (!students.length) {
+                body.innerHTML =
+                    '<tr><td colspan="6" class="empty-text">No session records yet.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = students.map(function(student) {
+                let attendance = student.attendance_status;
+                if (attendance === "NOT_DETECTED") {
+                    attendance = !student.face_enrolled
+                        ? "Face profile not enrolled"
+                        : student.face_first_seen_at
+                            ? "Face seen — device unverified"
+                            : "Not yet detected";
+                } else if (attendance === "NOT_VERIFIED") {
+                    attendance = "Not verified";
+                } else if (attendance === "AWAITING_FACE") {
+                    attendance = "Device evidence received — awaiting face";
+                }
+                const duration =
+                    student.live_verified_seconds ??
+                    student.total_verified_seconds ??
+                    0;
+                return `
+                    <tr>
+                        <td>${escapeHtml(student.name)}<br><small>${escapeHtml(student.student_id)}</small></td>
+                        <td>${escapeHtml(student.face_status || "FACE_NOT_DETECTED")}</td>
+                        <td>${formatTimestamp(student.first_entry_at)}</td>
+                        <td>${formatTimestamp(student.last_exit_at)}</td>
+                        <td>${formatDuration(duration)}</td>
+                        <td>${escapeHtml(attendance)}</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+
+        async function pollCurrentSession() {
+
+            if (sessionPolling) {
+                return;
+            }
+            sessionPolling = true;
+            try {
+                const response = await fetch(`${API_URL}/sessions/current`);
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || "Session status is unavailable.");
+                }
+                updateSessionDashboard(data);
+            } catch (error) {
+                document.getElementById("sessionState").textContent =
+                    `Session status unavailable: ${error.message}`;
+            } finally {
+                sessionPolling = false;
+            }
+        }
+
+
+        async function loadAttendanceSettings() {
+
+            try {
+                const response = await fetch(`${API_URL}/session-settings`);
+                const settings = await response.json();
+                if (!response.ok) {
+                    throw new Error(settings.detail || "Settings could not be loaded.");
+                }
+                document.getElementById("arrivalScanMinutes").value =
+                    settings.arrival_scan_minutes;
+                document.getElementById("sessionDeadlineMinutes").value =
+                    settings.session_deadline_minutes;
+                document.getElementById("disconnectGraceMinutes").value =
+                    settings.disconnect_grace_minutes;
+                document.getElementById("minimumVerifiedMinutes").value =
+                    settings.minimum_verified_minutes;
+                document.getElementById("settingsMessage").textContent =
+                    "Saved attendance policy loaded.";
+            } catch (error) {
+                document.getElementById("settingsMessage").textContent = error.message;
+            }
+        }
+
+
+        async function saveAttendanceSettings() {
+
+            const settings = {
+                arrival_scan_minutes: Number(
+                    document.getElementById("arrivalScanMinutes").value
+                ),
+                session_deadline_minutes: Number(
+                    document.getElementById("sessionDeadlineMinutes").value
+                ),
+                disconnect_grace_minutes: Number(
+                    document.getElementById("disconnectGraceMinutes").value
+                ),
+                minimum_verified_minutes: Number(
+                    document.getElementById("minimumVerifiedMinutes").value
+                )
+            };
+            const message = document.getElementById("settingsMessage");
+            try {
+                const response = await fetch(`${API_URL}/session-settings`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(settings)
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || "Settings could not be saved.");
+                }
+                message.textContent = "Attendance policy saved.";
+            } catch (error) {
+                message.textContent = error.message;
+            }
+        }
+
+
+        async function loadDeviceEvidenceStatus() {
+
+            const element = document.getElementById("deviceEvidenceStatus");
+            try {
+                const response = await fetch(`${API_URL}/device-evidence/status`);
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || "Device-evidence status is unavailable.");
+                }
+                const adapters = (data.local_wifi_adapters || [])
+                    .map(function(adapter) {
+                        return `${adapter.name}: AP scanning ${
+                            adapter.can_scan_access_points ? "available" : "unavailable"
+                        } · client identity unavailable`;
+                    })
+                    .join("; ");
+                element.textContent =
+                    `${data.message} ${adapters || "No local Wi-Fi adapter detected."}`;
+            } catch (error) {
+                element.textContent = error.message;
+            }
+        }
+
+
+        /* =========================
+           PHOTO UPLOAD
+        ========================= */
+
+        document
+            .getElementById("photoInput")
+            .addEventListener(
+                "change",
+                function(event) {
+
+                    const file =
+                        event.target.files[0];
+
+
+                    if (!file) {
+                        return;
+                    }
+
+
+                    if (
+                        file.size >
+                        5 * 1024 * 1024
+                    ) {
+
+                        showMessage(
+                            "Photo must be smaller than 5MB.",
+                            "error"
+                        );
+
+                        return;
+                    }
+
+
+                    selectedPhoto = file;
+
+
+                    showPhoto(
+                        URL.createObjectURL(
+                            file
+                        )
+                    );
+
+
+                    validateForm();
+
+                }
+            );
+
+
+        /* =========================
+           SHOW PHOTO
+        ========================= */
+
+        function showPhoto(source) {
+
+            const preview =
+                document.getElementById(
+                    "photoPreview"
+                );
+
+            const placeholder =
+                document.getElementById(
+                    "photoPlaceholder"
+                );
+
+
+            preview.src = source;
+
+            preview.style.display =
+                "block";
+
+            placeholder.style.display =
+                "none";
+
+        }
+
+
+        /* =========================
+           UPDATE DETAILS
+        ========================= */
+
+        function updateDetails() {
+
+            const studentId =
+                document.getElementById(
+                    "studentId"
+                ).value;
+
+
+            const studentName =
+                document.getElementById(
+                    "studentName"
+                ).value;
+
+
+            const wifi =
+                document.getElementById(
+                    "wifiSsid"
+                ).value;
+
+
+            document.getElementById(
+                "displayStudentId"
+            ).textContent =
+                studentId || "—";
+
+
+            document.getElementById(
+                "displayStudentName"
+            ).textContent =
+                studentName || "—";
+
+
+            document.getElementById(
+                "displayWifi"
+            ).textContent =
+                wifi || "—";
+
+
+            validateForm();
+
+        }
+
+
+        /* =========================
+           FORM VALIDATION
+        ========================= */
+
+        function validateForm() {
+
+            const studentId =
+                document.getElementById(
+                    "studentId"
+                ).value.trim();
+
+
+            const studentName =
+                document.getElementById(
+                    "studentName"
+                ).value.trim();
+
+
+            const wifi =
+                document.getElementById(
+                    "wifiSsid"
+                ).value.trim();
+
+
+            const button =
+                document.getElementById(
+                    "registerButton"
+                );
+
+
+            button.disabled = !(
+                studentId &&
+                studentName &&
+                wifi &&
+                selectedPhoto
+            );
+
+        }
+
+
+        /* =========================
+           CAMERA
+        ========================= */
+
+        async function openCamera(purpose = "registration", studentId = null) {
+
+            try {
+                cameraPurpose = purpose;
+                scanStudentId = studentId;
+
+                const scanning = purpose === "attendance";
+                document.getElementById("cameraTitle").textContent =
+                    scanning ? "Scan Student Face" : "Capture Student Photo";
+                document.getElementById("cameraInstruction").textContent =
+                    scanning
+                        ? "Look at the camera, then capture once to verify face and Wi-Fi."
+                        : "Make sure the face is centered in the camera.";
+                document.getElementById("captureButton").textContent =
+                    scanning ? "📸 Scan and verify" : "📸 Capture";
+
+                if (
+                    !navigator.mediaDevices ||
+                    !navigator.mediaDevices.getUserMedia
+                ) {
+
+                    const message = "Camera is not available. Open the page through localhost.";
+                    if (scanning) {
+                        showScanMessage(message, "error");
+                    } else {
+                        showMessage(message, "error");
+                    }
+
+                    return;
+                }
+
+
+                cameraStream =
+                    await navigator
+                        .mediaDevices
+                        .getUserMedia({
+                            video: true,
+                            audio: false
+                        });
+
+
+                const video =
+                    document.getElementById(
+                        "cameraVideo"
+                    );
+
+
+                video.srcObject =
+                    cameraStream;
+
+
+                document.getElementById(
+                    "cameraModal"
+                ).style.display =
+                    "flex";
+
+                document.getElementById("returnToDashboardButton").style.display = "none";
+                document.getElementById("cameraStopSessionButton").style.display = "none";
+
+                await video.play();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Camera error:",
+                    error
+                );
+
+                const message =
+                    "Could not access the camera. Please allow camera permission.";
+                if (cameraPurpose === "attendance") {
+                    showScanMessage(message, "error");
+                } else {
+                    showMessage(message, "error");
+                }
+
+            }
+
+        }
+
+
+        /* =========================
+           CAPTURE PHOTO
+        ========================= */
+
+        async function capturePhoto() {
+
+            const video =
+                document.getElementById(
+                    "cameraVideo"
+                );
+
+
+            if (
+                !video.videoWidth ||
+                !video.videoHeight
+            ) {
+
+                if (cameraPurpose === "attendance") {
+                    showScanMessage("Camera is not ready yet.", "error");
+                } else {
+                    showMessage("Camera is not ready yet.", "error");
+                }
+
+                return;
+            }
+
+
+            const canvas =
+                document.createElement(
+                    "canvas"
+                );
+
+
+            canvas.width =
+                video.videoWidth;
+
+
+            canvas.height =
+                video.videoHeight;
+
+
+            const context =
+                canvas.getContext(
+                    "2d"
+                );
+
+
+            context.drawImage(
+                video,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+            if (cameraPurpose === "attendance") {
+                const studentId = scanStudentId;
+                const imageBase64 = canvas.toDataURL("image/jpeg", 0.92).split(",")[1];
+                closeCamera();
+                await submitAttendanceScan(studentId, imageBase64);
+                return;
+            }
+
+            canvas.toBlob(
+                function(blob) {
+
+                    if (!blob) {
+                        showMessage("Could not capture the camera image.", "error");
+                        return;
+                    }
+
+                    selectedPhoto =
+                        new File(
+                            [blob],
+                            "student_camera_photo.jpg",
+                            {
+                                type:
+                                    "image/jpeg"
+                            }
+                        );
+
+
+                    showPhoto(
+                        URL.createObjectURL(
+                            blob
+                        )
+                    );
+
+
+                    validateForm();
+
+                    closeCamera();
+
+                },
+                "image/jpeg",
+                0.92
+            );
+
+        }
+
+
+        /* =========================
+           CLOSE CAMERA
+        ========================= */
+
+        function closeCamera() {
+
+            if (cameraStream) {
+
+                cameraStream
+                    .getTracks()
+                    .forEach(
+                        track =>
+                            track.stop()
+                    );
+
+                cameraStream = null;
+
+            }
+
+
+            document.getElementById(
+                "cameraModal"
+            ).style.display =
+                "none";
+
+            cameraPurpose = "registration";
+            scanStudentId = null;
+
+        }
+
+
+        function startAttendanceScan(studentId) {
+
+            const student = studentsCache.find(
+                function(item) {
+                    return String(item[1]) === studentId;
+                }
+            );
+
+            if (!student || student[4] !== true) {
+                showScanMessage(
+                    "This student has no enrolled face profile and cannot be verified.",
+                    "error"
+                );
+                return;
+            }
+
+            showScanMessage(
+                `Starting camera scan for ${student[2]} (${studentId}).`,
+                "info"
+            );
+            openCamera("attendance", studentId);
+        }
+
+
+        async function submitAttendanceScan(studentId, imageBase64) {
+
+            scanningStudents.add(studentId);
+            showScanMessage(
+                "Checking the captured face and scanning nearby Wi-Fi networks...",
+                "info"
+            );
+            renderStudents();
+
+            try {
+                const response = await fetch(
+                    `${API_URL}/scan/${encodeURIComponent(studentId)}`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            image_base64: imageBase64
+                        })
+                    }
+                );
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || "Student verification failed.");
+                }
+
+                scanResults.set(studentId, {
+                    faceRecognized: data.face_recognized,
+                    attendanceStatus: data.attendance_status
+                });
+
+                showScanMessage(
+                    data.message,
+                    data.face_recognized ? "info" : "error"
+                );
+            } catch (error) {
+                scanResults.set(studentId, { error: true });
+                showScanMessage(error.message, "error");
+            } finally {
+                scanningStudents.delete(studentId);
+                renderStudents();
+            }
+        }
+
+
+        function showScanMessage(message, type) {
+
+            const element = document.getElementById("scanMessage");
+            element.textContent = message;
+            element.className = `scan-message visible ${type}`;
+        }
+
+
+        /* =========================
+           REGISTER STUDENT
+        ========================= */
+
+        async function registerStudent() {
+
+            const studentId =
+                document.getElementById(
+                    "studentId"
+                ).value.trim();
+
+
+            const studentName =
+                document.getElementById(
+                    "studentName"
+                ).value.trim();
+
+
+            const wifiSsid =
+                document.getElementById(
+                    "wifiSsid"
+                ).value.trim();
+
+
+            if (
+                !studentId ||
+                !studentName ||
+                !wifiSsid ||
+                !selectedPhoto
+            ) {
+
+                showMessage(
+                    "Please complete all fields and select a photo.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const button =
+                document.getElementById(
+                    "registerButton"
+                );
+
+
+            button.disabled = true;
+
+            button.textContent =
+                "Registering...";
+
+
+            try {
+
+                const imageBase64 = await new Promise(function(resolve, reject) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        const result = String(reader.result || "");
+                        resolve(result.split(",")[1] || "");
+                    };
+                    reader.onerror = function() {
+                        reject(new Error("Could not read the selected face photo."));
+                    };
+                    reader.readAsDataURL(selectedPhoto);
+                });
+
+                const response =
+                    await fetch(
+                        `${API_URL}/students`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                student_id: studentId,
+                                name: studentName,
+                                wifi_ssid: wifiSsid,
+                                image_base64: imageBase64
+                            })
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.detail ||
+                        "Registration failed."
+                    );
+
+                }
+
+
+                showMessage(data.message, "success");
+
+                await loadStudents();
+
+            }
+
+            catch (error) {
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+            }
+
+            finally {
+
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    "👤➕ Register Student";
+
+                validateForm();
+
+            }
+
+        }
+
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        function showMessage(
+            message,
+            type
+        ) {
+
+            const element =
+                document.getElementById(
+                    "message"
+                );
+
+
+            element.textContent =
+                message;
+
+
+            element.className =
+                type;
+
+
+            element.style.display =
+                "block";
+
+        }
+
+
+        document
+            .getElementById("studentsTableBody")
+            .addEventListener("click", function(event) {
+                const button = event.target.closest("[data-scan-student]");
+                if (button) {
+                    startAttendanceScan(button.dataset.scanStudent);
+                }
+                const editButton = event.target.closest("[data-edit-student]");
+                if (editButton) {
+                    editStudent(editButton.dataset.editStudent);
+                }
+                const archiveButton = event.target.closest("[data-archive-student]");
+                if (archiveButton) {
+                    archiveStudent(archiveButton.dataset.archiveStudent);
+                }
+            });
+
+        loadStudents();
+        loadAttendanceSettings();
+        loadDeviceEvidenceStatus();
+        pollCurrentSession();
+        window.setInterval(pollWifiStatus, WIFI_POLL_INTERVAL);
+        window.setInterval(pollCurrentSession, SESSION_POLL_INTERVAL);
+
+    </script>
+
+</body>
+
+</html>
