@@ -27,6 +27,7 @@ from backend.services.session_service import (
     stop_session,
 )
 from backend.services.wifi_service import scan_wifi_ssids
+from backend.services.thingspeak_service import publish_telemetry
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -729,3 +730,23 @@ def get_attendance():
     return {
         "attendance": records
     }
+@app.post("/thingspeak/test")
+def test_thingspeak_connection():
+    try:
+        result = publish_telemetry(
+            device_status=1,
+            wifi_signal_strength=0,
+            face_detection=0,
+            recognized_student_count=0,
+            attendance_status=0,
+            session_status=0,
+        )
+
+        return {
+            "message": "ThingSpeak connection successful",
+            "channel_id": 3578408,
+            "thingSpeak": result,
+        }
+
+    except RuntimeError as error:
+        raise HTTPException(status_code=502, detail=str(error))
