@@ -28,11 +28,14 @@ from backend.services.session_service import (
 )
 from backend.services.wifi_service import scan_wifi_ssids
 
-
 @asynccontextmanager
-async def lifespan(app):
+async def lifespan(app: FastAPI):
 
+    from backend.database import initialize_database
+
+    initialize_database()
     initialize_session_schema()
+
     watcher = asyncio.create_task(session_deadline_watcher())
     try:
         yield

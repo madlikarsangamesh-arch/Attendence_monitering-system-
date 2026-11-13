@@ -1,30 +1,33 @@
+
 import sqlite3
+from pathlib import Path
 
-connection = sqlite3.connect("Database/attendance.db")
+DATABASE_PATH = Path(__file__).resolve().parents[1] / "Database" / "attendance.db"
 
-cursor = connection.cursor()
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS students (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    student_id TEXT UNIQUE NOT NULL,
-    name TEXT NOT NULL,
-    wifi_ssid TEXT
-)
-""")
+def initialize_database():
+    DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS attendance (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    student_id TEXT NOT NULL,
-    date TEXT NOT NULL,
-    time TEXT NOT NULL,
-    status TEXT NOT NULL
-)
-""")
+    connection = sqlite3.connect(DATABASE_PATH)
 
-connection.commit()
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS students (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            wifi_ssid TEXT
+        )
+    """)
 
-print("Students and attendance tables created successfully")
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS attendance (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id TEXT NOT NULL,
+            date TEXT NOT NULL,
+            time TEXT NOT NULL,
+            status TEXT NOT NULL
+        )
+    """)
 
-connection.close()
+    connection.commit()
+    connection.close()
