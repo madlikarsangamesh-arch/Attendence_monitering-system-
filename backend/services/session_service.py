@@ -35,7 +35,7 @@ def parse_timestamp(value):
 
 
 def connect():
-
+    DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(DATABASE_PATH, timeout=10)
     connection.row_factory = sqlite3.Row
     return connection
