@@ -1,9 +1,18 @@
-import pywifi
+try:
+    import pywifi
+except ImportError:
+    pywifi = None
 
 
 def get_device_evidence_status():
 
-    interfaces = pywifi.PyWiFi().interfaces()
+    interfaces = []
+
+    if pywifi is not None:
+        try:
+            interfaces = pywifi.PyWiFi().interfaces()
+        except Exception:
+            interfaces = []
 
     return {
         "provider_configured": False,

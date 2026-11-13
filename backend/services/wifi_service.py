@@ -1,8 +1,18 @@
-import pywifi
+
+try:
+    import pywifi
+except ImportError:
+    pywifi = None
+
 from time import sleep
 
 
 def scan_wifi_ssids():
+
+    if pywifi is None:
+        raise RuntimeError(
+            "Wi-Fi scanning is unavailable on this server."
+        )
 
     wifi = pywifi.PyWiFi()
     interfaces = wifi.interfaces()
@@ -30,9 +40,7 @@ def check_wifi_presence(student):
     registered_wifi = student[2]
 
     if not registered_wifi:
-
         print("No Wi-Fi is registered for this student.")
-
         return False
 
     print("Scanning nearby Wi-Fi...")
@@ -62,13 +70,11 @@ def check_wifi_presence(student):
         print("--------------------------------------")
         return True
 
-
     print("--------------------------------------")
     print("REGISTERED WI-FI NOT DETECTED")
     print("Student:", student[1])
     print("Student ID:", student[0])
     print("STATUS: REGISTERED SSID NOT DETECTED")
     print("--------------------------------------")
-
 
     return False

@@ -559,16 +559,19 @@ def check_wifi_presence(student_id: str):
 
     connection = sqlite3.connect(DATABASE_PATH)
     cursor = connection.cursor()
-    cursor.execute(
-        """
-        SELECT id, name, wifi_ssid
-        FROM students
-        WHERE student_id = ? COLLATE NOCASE AND is_active = 1
-        """,
-        (student_id,)
-    )
-    student = cursor.fetchone()
-    connection.close()
+
+    try:
+        cursor.execute(
+            """
+            SELECT id, name, wifi_ssid
+            FROM students
+            WHERE student_id = ? COLLATE NOCASE AND is_active = 1
+            """,
+            (student_id,)
+        )
+        student = cursor.fetchone()
+    finally:
+        connection.close()
 
     if student is None:
         return {
@@ -577,9 +580,17 @@ def check_wifi_presence(student_id: str):
             "status": "STUDENT NOT REGISTERED"
         }
 
-    available_ssids = scan_wifi_ssids()
+    try:
+        available_ssids = scan_wifi_ssids()
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error)
+        )
+
     registered_wifi = (student[2] or "").strip()
-    wifi_present = bool(
+
+    network_name_visible = bool(
         registered_wifi
         and any(
             ssid.casefold() == registered_wifi.casefold()
@@ -591,16 +602,15 @@ def check_wifi_presence(student_id: str):
         "student_id": student_id,
         "name": student[1],
         "registered_wifi": registered_wifi or None,
-        "network_name_visible": wifi_present,
+        "network_name_visible": network_name_visible,
         "individual_device_presence_available": False,
         "wifi_present": False,
         "status": (
             "REGISTERED NETWORK NAME VISIBLE (NOT DEVICE PRESENCE)"
-            if wifi_present
+            if network_name_visible
             else "REGISTERED NETWORK NAME NOT VISIBLE (NOT DEVICE STATUS)"
         )
     }
-
 
 @app.post("/scan/{student_id}")
 def scan_student(student_id: str, request: ScanRequest):
