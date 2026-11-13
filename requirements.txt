@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+pydantic
+numpy
+opencv-contrib-python-headless
+pywifi
