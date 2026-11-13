@@ -7,6 +7,7 @@ except ImportError:
 from time import sleep
 
 
+
 def scan_wifi_ssids():
 
     if pywifi is None:
@@ -14,21 +15,27 @@ def scan_wifi_ssids():
             "Wi-Fi scanning is unavailable on this server."
         )
 
-    wifi = pywifi.PyWiFi()
-    interfaces = wifi.interfaces()
+    try:
+        wifi = pywifi.PyWiFi()
+        interfaces = wifi.interfaces()
 
-    if not interfaces:
-        raise RuntimeError("No Wi-Fi adapter found.")
+        if not interfaces:
+            raise RuntimeError("No Wi-Fi adapter found.")
 
-    interface = interfaces[0]
-    interface.scan()
-    sleep(3)
+        interface = interfaces[0]
+        interface.scan()
+        sleep(3)
 
-    return {
-        network.ssid.strip()
-        for network in interface.scan_results()
-        if network.ssid and network.ssid.strip()
-    }
+        return {
+            network.ssid.strip()
+            for network in interface.scan_results()
+            if network.ssid and network.ssid.strip()
+        }
+
+    except OSError as exc:
+        raise RuntimeError(
+            "Wi-Fi scanning is unavailable: no accessible Wi-Fi adapter."
+        ) from exc
 
 
 # =========================================================
