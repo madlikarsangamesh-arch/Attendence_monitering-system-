@@ -1,8 +1,8 @@
-
 import asyncio
 import base64
 import binascii
 import sqlite3
+from time import monotonic
 from contextlib import asynccontextmanager, closing
 from datetime import datetime
 from pathlib import Path
@@ -71,6 +71,71 @@ DATABASE_PATH = (
     / "Database"
     / "attendance.db"
 )
+
+
+# =========================================================
+# HELPERS
+# =========================================================
+
+def hotspot_visible(registered_ssid: str | None) -> bool:
+    """
+    True if the student's registered hotspot name is currently
+    visible in a Wi-Fi scan. May raise RuntimeError if the scan fails.
+    """
+
+    registered = (registered_ssid or "").strip()
+
+    if not registered:
+        return False
+
+    available = scan_wifi_ssids()
+
+    return any(
+        ssid.casefold() == registered.casefold()
+        for ssid in available
+    )
+
+
+def mark_attendance_row(
+    connection,
+    student_id: str,
+    status: str,
+) -> bool:
+    """
+    Insert one attendance row per student per day.
+    Returns False if a row already exists for today.
+    """
+
+    now = datetime.now()
+    today = now.strftime("%Y-%m-%d")
+
+    exists = connection.execute(
+        """
+        SELECT 1
+        FROM attendance
+        WHERE student_id = ? COLLATE NOCASE
+          AND date = ?
+        """,
+        (student_id, today),
+    ).fetchone()
+
+    if exists:
+        return False
+
+    connection.execute(
+        """
+        INSERT INTO attendance (student_id, date, time, status)
+        VALUES (?, ?, ?, ?)
+        """,
+        (
+            student_id,
+            today,
+            now.strftime("%H:%M:%S"),
+            status,
+        ),
+    )
+
+    return True
 
 
 # =========================================================
@@ -889,6 +954,10 @@ def get_wifi_status():
             detail=str(error),
         )
 
+    available_folded = {
+        ssid.casefold() for ssid in available_ssids
+    }
+
     with closing(
         sqlite3.connect(DATABASE_PATH)
     ) as connection:
@@ -901,31 +970,31 @@ def get_wifi_status():
             """
         ).fetchall()
 
-    return {
-        "evidence_type": "ACCESS_POINT_SCAN",
-        "individual_device_presence_available": False,
-        "scan_result": "ACCESS_POINT_NAMES_ONLY",
-        "students": [
+    results = []
+
+    for student_id, registered_wifi in students:
+
+        registered = (registered_wifi or "").strip()
+        visible = bool(
+            registered
+            and registered.casefold() in available_folded
+        )
+
+        results.append(
             {
                 "student_id": student_id,
                 "registered_wifi": registered_wifi,
-                "configured": bool(
-                    registered_wifi
-                    and registered_wifi.strip()
-                ),
-                "network_name_visible": bool(
-                    registered_wifi
-                    and registered_wifi.strip()
-                    and any(
-                        ssid.casefold()
-                        == registered_wifi.strip().casefold()
-                        for ssid in available_ssids
-                    )
-                ),
-                "wifi_present": False,
+                "configured": bool(registered),
+                "network_name_visible": visible,
+                # Each student has their own hotspot, so a visible
+                # hotspot name means their phone is nearby.
+                "wifi_present": visible,
             }
-            for student_id, registered_wifi in students
-        ],
+        )
+
+    return {
+        "evidence_type": "STUDENT_HOTSPOT_SCAN",
+        "students": results,
         "checked_at": datetime.now().isoformat(
             timespec="seconds"
         ),
@@ -962,7 +1031,7 @@ def check_wifi_presence(student_id: str):
         }
 
     try:
-        available_ssids = scan_wifi_ssids()
+        present = hotspot_visible(student[2])
 
     except RuntimeError as error:
         raise HTTPException(
@@ -970,36 +1039,24 @@ def check_wifi_presence(student_id: str):
             detail=str(error),
         )
 
-    registered_wifi = (
-        student[2] or ""
-    ).strip()
-
-    network_name_visible = bool(
-        registered_wifi
-        and any(
-            ssid.casefold()
-            == registered_wifi.casefold()
-            for ssid in available_ssids
-        )
-    )
+    registered_wifi = (student[2] or "").strip()
 
     return {
         "student_id": student_id,
         "name": student[1],
         "registered_wifi": registered_wifi or None,
-        "network_name_visible": network_name_visible,
-        "individual_device_presence_available": False,
-        "wifi_present": False,
+        "network_name_visible": present,
+        "wifi_present": present,
         "status": (
-            "REGISTERED NETWORK NAME VISIBLE (NOT DEVICE PRESENCE)"
-            if network_name_visible
-            else "REGISTERED NETWORK NAME NOT VISIBLE (NOT DEVICE STATUS)"
+            "HOTSPOT VISIBLE"
+            if present
+            else "HOTSPOT NOT VISIBLE"
         ),
     }
 
 
 # =========================================================
-# FACE SCAN FOR ONE STUDENT
+# FACE + WI-FI SCAN FOR ONE STUDENT (MARKS ATTENDANCE)
 # =========================================================
 
 @app.post("/scan/{student_id}")
@@ -1028,13 +1085,15 @@ def scan_student(
             detail="Student is not registered.",
         )
 
-    if not is_face_enrolled(student_id):
+    if not is_face_enrolled(student[0]):
 
         return {
-            "student_id": student_id,
+            "student_id": student[0],
             "face_enrolled": False,
             "face_recognized": False,
+            "wifi_present": False,
             "attendance_status": "NOT_VERIFIED",
+            "attendance_marked": False,
             "message": "This student has no enrolled face profile.",
         }
 
@@ -1064,26 +1123,67 @@ def scan_student(
     )
 
     face_recognized = (
-        recognized_student_id == student_id
+        recognized_student_id is not None
+        and str(recognized_student_id).casefold()
+        == student[0].casefold()
     )
 
+    try:
+        wifi_present = hotspot_visible(student[2])
+
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        )
+
+    verified = face_recognized and wifi_present
+    marked = False
+
+    if verified:
+
+        with closing(
+            sqlite3.connect(
+                DATABASE_PATH,
+                timeout=10,
+            )
+        ) as connection:
+
+            marked = mark_attendance_row(
+                connection,
+                student[0],
+                "Present",
+            )
+
+            connection.commit()
+
+    if verified:
+        message = "Face and hotspot verified. Marked Present."
+
+    elif face_recognized:
+        message = (
+            "Face recognized, but the student's hotspot is not visible."
+        )
+
+    elif wifi_present:
+        message = (
+            "Hotspot visible, but face was not recognized."
+        )
+
+    else:
+        message = "Neither face nor hotspot verified."
+
     return {
-        "student_id": student_id,
+        "student_id": student[0],
         "face_enrolled": True,
         "face_recognized": face_recognized,
         "recognized_student_id": recognized_student_id,
+        "wifi_present": wifi_present,
         "attendance_status": (
-            "AWAITING_AUTHENTICATED_DEVICE"
-            if face_recognized
-            else "NOT_VERIFIED"
+            "PRESENT" if verified else "NOT_VERIFIED"
         ),
-        "attendance_marked": False,
-        "message": (
-            "Face recognized. Attendance remains unverified until "
-            "authenticated device evidence is available."
-            if face_recognized
-            else "Face was not recognized. Retry the scan."
-        ),
+        "attendance_marked": marked,
+        "message": message,
     }
 
 
@@ -1097,10 +1197,56 @@ def mark_attendance(student_id: str):
     raise HTTPException(
         status_code=409,
         detail=(
-            "Legacy attendance marking is disabled. Start an attendance session; "
-            "attendance requires both an enrolled face and authenticated device evidence."
+            "Direct attendance marking is disabled. Use /scan/{student_id} "
+            "(face + hotspot verification), then /attendance/finalize."
         ),
     )
+
+
+# =========================================================
+# FINALIZE ATTENDANCE - MARK REMAINING STUDENTS ABSENT
+# =========================================================
+
+@app.post("/attendance/finalize")
+def finalize_attendance():
+
+    absent = []
+
+    with closing(
+        sqlite3.connect(
+            DATABASE_PATH,
+            timeout=10,
+        )
+    ) as connection:
+
+        connection.execute("BEGIN IMMEDIATE")
+
+        student_ids = [
+            row[0]
+            for row in connection.execute(
+                """
+                SELECT student_id
+                FROM students
+                WHERE is_active = 1
+                """
+            ).fetchall()
+        ]
+
+        for sid in student_ids:
+
+            if mark_attendance_row(
+                connection,
+                sid,
+                "Absent",
+            ):
+                absent.append(sid)
+
+        connection.commit()
+
+    return {
+        "message": "Attendance finalized.",
+        "marked_absent": absent,
+    }
 
 
 # =========================================================
